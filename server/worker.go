@@ -34,6 +34,8 @@ func worker(resource string, trigger chan int, result chan error) {
 			fallthrough
 		case "https":
 			testResult = httpCheck(resource)
+		case "tcp":
+			testResult = tcpCheck(resource)
 		default:
 			testResult = fmt.Errorf("Unsupported check type %s: %s", testType, resource)
 		}
