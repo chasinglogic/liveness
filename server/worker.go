@@ -14,6 +14,22 @@ func getTestType(resource string) string {
 }
 
 func worker(resource string, trigger chan int, result chan error) {
+	testType := getTestType(resource)
+
+	var testFunc func(resource string) error
+	switch testType {
+	case "http":
+		fallthrough
+	case "https":
+		testFunc = httpCheck
+	case "tcp":
+		testFunc = tcpCheck
+	default:
+		testFunc = func(resource string) error {
+			return fmt.Errorf("Unsupported check type %s: %s", testType, resource)
+		}
+	}
+
 	for {
 		log.Debug().
 			Str("resource", resource).
@@ -26,19 +42,7 @@ func worker(resource string, trigger chan int, result chan error) {
 			Str("resource", resource).
 			Msg("starting liveness check")
 
-		var testResult error
-
-		testType := getTestType(resource)
-		switch testType {
-		case "http":
-			fallthrough
-		case "https":
-			testResult = httpCheck(resource)
-		case "tcp":
-			testResult = tcpCheck(resource)
-		default:
-			testResult = fmt.Errorf("Unsupported check type %s: %s", testType, resource)
-		}
+		testResult := testFunc(resource)
 
 		if testResult != nil {
 			log.Error().
