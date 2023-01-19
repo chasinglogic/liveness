@@ -24,6 +24,8 @@ func worker(resource string, trigger chan int, result chan error) {
 		testFunc = httpCheck
 	case "tcp":
 		testFunc = tcpCheck
+	case "postgres":
+		testFunc = postgresCheck
 	default:
 		testFunc = func(resource string) error {
 			return fmt.Errorf("Unsupported check type %s: %s", testType, resource)
