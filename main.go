@@ -28,6 +28,7 @@ var resources resourceFlag
 func main() {
 	flag.Var(&resources, "resource", "A resource to watch for liveness, can be provided multiple times to watch multiple resources")
 	structuredLogging := flag.Bool("structured-logging", false, "If provided will output structured JSON logs.")
+	port := flag.String("port", ":8080", "Which port and address to listen on")
 	flag.Parse()
 
 	if !*structuredLogging {
@@ -35,7 +36,7 @@ func main() {
 	}
 
 	s := server.New(resources)
-	if err := http.ListenAndServe(":8080", &s); err != nil {
+	if err := http.ListenAndServe(*port, &s); err != nil {
 		fmt.Println("exited with error!", err.Error())
 	}
 }
